@@ -1,45 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../style.css" />
-  <title>Contact Pooja Panchal</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pooja Panchal — Contact</title>
+  <link rel="stylesheet" href="https://ppanchal-ucsd.github.io/portfolio/style.css" />
 </head>
 <body>
-  <header>
-    <h1>Contact Me</h1>
+
   <nav>
     <a href="https://ppanchal-ucsd.github.io/portfolio/index.html">Home</a>
     <a href="https://ppanchal-ucsd.github.io/portfolio/projects/">Projects</a>
-    <a href="https://ppanchal-ucsd.github.io/portfolio/contact/index.html"class="current">Contact</a>
+    <a href="https://ppanchal-ucsd.github.io/portfolio/contact/index.html" class="current">Contact</a>
     <a href="https://ppanchal-ucsd.github.io/portfolio/resume/">CV</a>
   </nav>
-    
-  </header>
 
-  <main>
-    <form action="mailto:pooooja97@gmail.com" method="POST" enctype="text/plain">
-      <label>
-        Your Email:
-        <input type="email" name="email" required />
-      </label>
-      <br />
+  <h1>Contact</h1>
 
-      <label>
-        Subject:
-        <input type="text" name="subject" required />
-      </label>
-      <br />
+  <form class="contact" action="#" method="post">
+    <label for="name">
+      <span>Name</span>
+      <input class="field" type="text" id="name" name="name" required>
+    </label>
 
-      <label>
-        Message:
-        <textarea name="body" rows="5" cols="30" required></textarea>
-      </label>
-      <br />
+    <label for="email">
+      <span>Email</span>
+      <input class="field" type="email" id="email" name="email" required>
+    </label>
 
-      <button type="submit">Send</button>
-    </form>
-  </main>
+    <label for="message">
+      <span>Message</span>
+      <textarea class="field" id="message" name="message" rows="6"></textarea>
+    </label>
+
+    <button type="submit">Send</button>
+  </form>
+
 </body>
 </html>
+
