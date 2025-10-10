@@ -1,16 +1,16 @@
+/* Images that scale nicely */
 .responsive-img {
   max-width: 100%;
   height: auto;
   display: block;
 }
+
 /* ====== Global layout & typography (Step 1) ====== */
 :root {
   --color-accent: oklch(65% 50% 0); /* Step 2.4 accent */
 }
 
-html {
-  accent-color: var(--color-accent);
-}
+html { accent-color: var(--color-accent); }
 
 *,
 *::before,
@@ -19,74 +19,57 @@ html {
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  max-width: 100ch;                 /* keep content from getting too wide */
-  margin-inline: auto;              /* center the column */
-  padding-inline: 1rem;             /* breathing room on small viewports */
+  max-width: 100ch;          /* keep content from getting too wide */
+  margin-inline: auto;       /* center the column */
+  padding-inline: 1rem;      /* breathing room on small viewports */
 }
 
-/* Alternative from the lab’s tip (either way is fine):
-body { margin-inline: max(1em, (100% - 100ch) / 2); }
-*/
-
-/* ====== Headings hierarchy & nice defaults (Step 4.4) ====== */
+/* ====== Headings hierarchy ====== */
 h1 { font-size: 400%; line-height: 1.1; text-wrap: balance; }
 h2, h3, h4, h5, h6 { line-height: 1.1; text-wrap: balance; }
 
 /* ====== Navigation bar (Step 2) ====== */
 nav {
-  display: flex;                    /* Step 2.2 */
-  gap: 0;                           /* explicit to avoid surprises */
-  margin-bottom: 1rem;              /* Step 2.3 spacing from content */
-  border-bottom: 1px solid oklch(80% 3% 200); /* subtle rule */
+  display: flex;                    /* 2.2 */
+  gap: 0;
+  margin-bottom: 1rem;              /* 2.3 */
+  border-bottom: 1px solid oklch(80% 3% 200);
 }
 
 nav a {
-  flex: 1;                          /* distribute space (Step 2.2 note) */
-  text-decoration: none;            /* Step 2.3 */
-  color: inherit;                   /* Step 2.3 */
-  text-align: center;               /* Step 2.3 */
-  padding: 0.5em;                   /* Step 2.3 */
+  flex: 1;                          /* distribute space */
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+  padding: 0.5em;
   display: block;
-  border-bottom: 0 solid transparent; /* so height won’t jump on hover */
+  border-bottom: 0 solid transparent; /* avoid layout jump on hover */
 }
 
-/* Current page indicator (Step 2.3) */
 nav a.current {
-  border-bottom: 0.4em solid oklch(80% 3% 200);
-  padding-bottom: 0.1em; /* counter the added border height */
+  border-bottom: 0.4em solid oklch(80% 3% 200); /* current page indicator */
+  padding-bottom: 0.1em;
 }
 
-/* Hover styles in accent color (Step 2.4) */
 nav a:hover {
-  border-bottom: 0.4em solid var(--color-accent);
+  border-bottom: 0.4em solid var(--color-accent); /* hover accent */
   background-color: oklch(from var(--color-accent) 95% 5% h); /* optional “go further” */
 }
 
 /* ====== Contact form (Step 3) ====== */
-
-/* Step 3.1: integrate typography */
 input, textarea, button { font: inherit; }
 
-/* Top-down version from Step 3.2 (kept here for reference; will be overridden by Grid) */
-/*
-label, input, textarea, button { display:block; }
-input, textarea { width: 100%; box-sizing: border-box; }
-label { margin-block: 0.5em; }
-*/
-
-/* Step 3.3: Grid + subgrid layout */
 form.contact {
   display: grid;
-  grid-template-columns: auto 1fr;  /* labels content-sized, fields take remaining */
-  gap: 1em;                         /* spacing between controls */
+  grid-template-columns: auto 1fr;
+  gap: 1em;
   align-items: center;
 }
 
 form.contact label {
-  /* Make each label its own grid that inherits columns from the parent */
   display: grid;
-  grid-template-columns: subgrid;   /* subgrid magic */
-  grid-column: 1 / -1;              /* each label row spans full width */
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
 }
 
 form.contact input[type="text"],
@@ -98,10 +81,8 @@ form.contact textarea {
   border-radius: 0.4rem;
 }
 
-/* Put the input next to the label’s text on the right column */
 form.contact .field { grid-column: 2; }
 
-/* Submit button spanning the full row (matches lab text) */
 form.contact button[type="submit"] {
   grid-column: 1 / -1;
   justify-self: start;
@@ -112,22 +93,21 @@ form.contact button[type="submit"] {
 }
 
 /* ====== Projects page (Step 4) ====== */
-
 .projects {
-  display: grid; /* Step 4.2 */
+  display: grid; /* 4.2 */
   grid-template-columns: repeat(auto-fill, minmax(15em, 1fr)); /* responsive columns */
-  gap: 1em; /* Step 4.3 tip */
+  gap: 1em; /* 4.3 tip */
   margin-block: 1rem;
 }
 
 .projects article {
   display: grid;
-  grid-template-rows: subgrid; /* Step 4.3: align inner content across columns */
+  grid-template-rows: subgrid; /* align inner rows across columns */
   grid-row: span 3;            /* 3 rows per card */
   border: 1px solid oklch(90% 3% 200);
   border-radius: 0.75rem;
   padding: 0.75rem;
 }
 
-.projects h2 { margin: 0; }    /* Step 4.3 tip to avoid extra spacing */
+.projects h2 { margin: 0; }
 .projects img { max-width: 100%; height: auto; display: block; }
