@@ -70,3 +70,26 @@ document.body.insertAdjacentHTML(
 `
 );
 
+// STEP 4 — wire up the theme switch & persist to localStorage
+{
+  const select = document.querySelector("#theme-switch");
+
+  function setColorScheme(value) {
+    document.documentElement.style.setProperty("color-scheme", value);
+    if (select) select.value = value;
+  }
+
+  // On load: restore saved preference if present
+  if ("colorScheme" in localStorage) {
+    setColorScheme(localStorage.colorScheme);
+  }
+
+  // React to user changes and save
+  select?.addEventListener("input", (event) => {
+    const value = event.target.value;
+    setColorScheme(value);
+    localStorage.colorScheme = value;
+  });
+}
+
+
