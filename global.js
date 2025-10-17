@@ -54,3 +54,19 @@ function $$(selector, context = document) {
     nav.append(a);
   }
 }
+
+// Insert a 3-state Theme switch (Automatic / Light / Dark)
+document.body.insertAdjacentHTML(
+  "afterbegin",
+  `
+  <label class="color-scheme">
+    Theme:
+    <select id="theme-switch">
+      <option value="light dark">Automatic</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>
+`
+);
+
