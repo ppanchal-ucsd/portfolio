@@ -8,6 +8,22 @@
   <link rel="stylesheet" href="https://ppanchal-ucsd.github.io/portfolio/style.css" />
 </head>
 
+<script src="../global.js" type="module"></script>
+<script type="module">
+  import { fetchJSON } from '../global.js';
+
+  // Use the correct relative path from /projects/ to /lib/
+  const url = '../lib/projects.json';
+
+  try {
+    const data = await fetchJSON(url);
+    console.log('Loaded projects:', data);  // sanity check
+    // (You’ll render these in Step 1.4 / 1.5 — for now we just confirm it loads)
+  } catch (err) {
+    console.error(err);
+  }
+</script>
+
 <body>
 
     <!-- <nav>
