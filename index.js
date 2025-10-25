@@ -1,4 +1,4 @@
-import { fetchJSON, renderProjects } from './global.js';
+import { fetchJSON, renderProjects, fetchGitHubData } from './global.js';
 
 const projects = await fetchJSON('./lib/projects.json');
 const latestProjects = projects.slice(0, 3);
@@ -26,3 +26,4 @@ try {
   const statsEl = document.getElementById('profile-stats');
   if (statsEl) statsEl.textContent = 'Could not load GitHub stats.';
 }
+
