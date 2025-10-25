@@ -12,6 +12,19 @@ console.log("IT'S ALIVE!");
 function $$(selector, context = document) {
   return Array.from(context.querySelectorAll(selector));
 }
+export function renderProjects(projects, containerEl, headingLevel = 'h2') {
+  if (!containerEl) return;
+  containerEl.innerHTML = '';
+  for (const p of projects) {
+    const article = document.createElement('article');
+    article.innerHTML = `
+      <${headingLevel}>${p.title}</${headingLevel}>
+      <img src="${p.image}" alt="${p.title}">
+      <p>${p.description}</p>
+    `;
+    containerEl.appendChild(article);
+  }
+}
 
 // {
 //   const navLinks = $$("nav a");
