@@ -114,4 +114,9 @@ document.body.insertAdjacentHTML(
   });
 }
 
+export async function fetchGitHubData(username) {
+  if (!username) throw new Error('fetchGitHubData: missing username');
+  // Reuse fetchJSON so errors surface clearly
+  return await fetchJSON(`https://api.github.com/users/${encodeURIComponent(username)}`);
+}
 
