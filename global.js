@@ -92,7 +92,6 @@ document.body.insertAdjacentHTML(
 `
 );
 
-// STEP 4 — wire up the theme switch & persist to localStorage
 {
   const select = document.querySelector("#theme-switch");
 
