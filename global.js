@@ -1,3 +1,12 @@
+export async function fetchJSON(url) {
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) {
+    throw new Error(`fetchJSON failed: ${res.status} ${res.statusText} for ${url}`);
+  }
+  return await res.json();
+}
+
+
 console.log("IT'S ALIVE!");
 
 function $$(selector, context = document) {
