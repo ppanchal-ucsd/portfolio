@@ -9,15 +9,15 @@
 <body>
   <h1 class="projects-title">Projects</h1>
 
-  <svg id="projects-pie-plot" viewBox="-50 -50 100 100"></svg>
-
-  <ul class="legend"></ul>
+  <div class="pie-legend-container">
+=    <svg id="projects-pie-plot" viewBox="-50 -50 100 100"></svg>
+    <ul class="legend"></ul>
+  </div>
 
   <section class="projects"></section>
 
   <script type="module">
     import { fetchJSON, renderProjects } from '../global.js';
-
     const projects = await fetchJSON('../lib/projects.json');
     document.querySelector('.projects-title').textContent = `Projects (${projects.length})`;
     renderProjects(projects, document.querySelector('.projects'), 'h2');
@@ -26,6 +26,7 @@
   <script type="module" src="./projects.js"></script>
 </body>
 </html>
+
 
 
 
