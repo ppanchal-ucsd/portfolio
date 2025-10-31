@@ -113,13 +113,11 @@ html {
   color: canvastext;
 }
 
-/* Border color that reads well in both modes */
 nav {
   --border-color: oklch(50% 10% 200 / 40%);
   border-bottom: 1px solid var(--border-color);
 }
 
-/* (Optional) If you had a bright hover, blend with canvas for dark mode */
 nav a:hover {
   background-color: color-mix(in oklch, var(--color-accent, oklch(60% 30% 200)), canvas 85%);
 }
