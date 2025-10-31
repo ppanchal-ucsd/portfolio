@@ -1,35 +1,62 @@
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
-import { fetchJSON } from '../global.js';
+import { fetchJSON, renderProjects } from '../global.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const svg = d3.select('#projects-pie-plot');
   const legend = d3.select('.legend');
-  const R = 50;
-  const arc = d3.arc().innerRadius(0).outerRadius(R);
   const colors = d3.scaleOrdinal(d3.schemeTableau10);
+  const arc = d3.arc().innerRadius(0).outerRadius(50);
+  const pie = d3.pie().value(d => d.value);
 
   const projects = await fetchJSON('../lib/projects.json');
+  const projectsContainer = document.querySelector('.projects');
+  const searchInput = document.querySelector('.searchBar');
 
-  const rolled = d3.rollups(projects, v => v.length, d => d.year);
-  const data = rolled.map(([year, count]) => ({ label: year, value: count }));
+  let query = '';
 
-  const pie = d3.pie().value(d => d.value);
-  const arcData = pie(data);
+  function filterProjects(list, q) {
+    const term = q.toLowerCase();
+    return list.filter(p =>
+      Object.values(p).join('\n').toLowerCase().includes(term)
+    );
+  }
 
-  svg.selectAll('path')
-    .data(arcData)
-    .join('path')
-    .attr('d', arc)
-    .attr('fill', (_, i) => colors(i))
-    .attr('stroke', 'white')
-    .attr('stroke-width', 1);
+  function renderPieChart(list) {
+    const rolled = d3.rollups(list, v => v.length, d => d.year);
+    const data = rolled.map(([year, count]) => ({ label: year, value: count }));
+    const arcData = pie(data);
 
-  legend.selectAll('li')
-    .data(data)
-    .join('li')
-    .attr('style', (_, i) => `--color:${colors(i)}`)
-    .html(d => `<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`);
+    svg.selectAll('path').remove();
+    legend.selectAll('*').remove();
+
+    arcData.forEach((d, i) => {
+      svg.append('path')
+        .attr('d', arc(d))
+        .attr('fill', colors(i))
+        .attr('stroke', 'white');
+    });
+
+    legend.selectAll('li')
+      .data(data)
+      .join('li')
+      .attr('style', (_, i) => `--color:${colors(i)}`)
+      .html(d => `<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`);
+  }
+
+  function updateAll() {
+    const filtered = filterProjects(projects, query);
+    renderProjects(filtered, projectsContainer, 'h2');
+    renderPieChart(filtered);
+  }
+
+  searchInput.addEventListener('input', e => {
+    query = e.target.value;
+    updateAll();
+  });
+
+  updateAll();
 });
+
 
 
 
