@@ -20,16 +20,10 @@
 
   <section class="projects"></section>
 
-  <script type="module">
-    import { fetchJSON, renderProjects } from '../global.js';
-    const projects = await fetchJSON('../lib/projects.json');
-    document.querySelector('.projects-title').textContent = `Projects (${projects.length})`;
-    renderProjects(projects, document.querySelector('.projects'), 'h2');
-  </script>
-
   <script type="module" src="./projects.js"></script>
 </body>
 </html>
+
 
 
 
