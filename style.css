@@ -173,6 +173,13 @@ label.color-scheme select { font-family: inherit; }
   flex: 1;                   
 }
 
+#projects-pie-plot:has(path:hover) path:not(:hover) { opacity: 0.5; }
+
+#projects-pie-plot path { transition: 300ms; cursor: pointer; }
+
+#projects-pie-plot path.selected { stroke: black; stroke-width: 2px; }
+.legend li.selected { font-weight: 600; text-decoration: underline; }
+
 
 
 
