@@ -9,12 +9,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const colors = d3.scaleOrdinal(d3.schemeTableau10);
   const arc = d3.arc().innerRadius(0).outerRadius(50);
-  const pie = d3.pie().value(d => d.value); 
+  const pie = d3.pie().value(d => d.value).sort(null);
 
   const projects = await fetchJSON('../lib/projects.json');
 
+  document.querySelector('.projects-title').textContent = `Projects (${projects.length})`;
+
   let query = '';
-  let selectedYear = null; 
+  let selectedYear = null;
 
   function filterProjectsByQuery(list, q) {
     const needle = q.trim().toLowerCase();
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       .on('click', (e, d) => {
         const yr = data[d.index].label;
         selectedYear = (selectedYear === yr) ? null : yr;
-        updateAll(); 
+        updateAll();
       });
 
     legend.selectAll('li')
@@ -65,13 +67,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function updateAll() {
     const byQuery = filterProjectsByQuery(projects, query);
-
     const byQueryAndSelection = selectedYear
       ? byQuery.filter(p => String(p.year) === selectedYear)
       : byQuery;
 
     renderProjects(byQueryAndSelection, projectsContainer, 'h2');
-
     renderPieAndLegend(byQuery);
   }
 
@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updateAll();
 });
+
 
 
 
