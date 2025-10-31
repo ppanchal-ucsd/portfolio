@@ -133,4 +133,11 @@ label.color-scheme {
 }
 label.color-scheme select { font-family: inherit; }
 
+#projects-pie-plot {
+  max-width: 20em;
+  margin-block: 2em;
+  overflow: visible;
+}
+
+
 

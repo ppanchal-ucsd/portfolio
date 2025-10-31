@@ -9,21 +9,20 @@
 <body>
   <h1 class="projects-title">Projects</h1>
 
-  <!-- Empty container that JS will populate -->
   <section class="projects"></section>
 
-  <!-- Load data + render (module, correct relative paths) -->
   <script type="module">
     import { fetchJSON, renderProjects } from '../global.js';
 
     const projects = await fetchJSON('../lib/projects.json');
 
-    // optional: show count in the H1
     const title = document.querySelector('.projects-title');
     if (title) title.textContent = `Projects (${projects.length})`;
 
-    // render full list (years will show because your renderer adds (year))
     renderProjects(projects, document.querySelector('.projects'), 'h2');
+
+    <svg id="projects-pie-plot" viewBox="-50 -50 100 100"></svg>
+
   </script>
 </body>
 </html>
