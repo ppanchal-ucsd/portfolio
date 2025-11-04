@@ -1,4 +1,6 @@
-console.log('✅ main.js loaded');
+console.log(' main.js loaded');
+let xScale, yScale;   
+let commitsRef = [];
 
 async function loadData() {
   const data = await d3.csv('loc.csv', row => ({
