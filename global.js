@@ -33,7 +33,7 @@ export function renderProjects(projects, containerEl, headingLevel = 'h2') {
     { url: "projects/",  title: "Projects" },
     { url: "resume/",    title: "Resume" },
     { url: "contact/",   title: "Contact" },
-    { url: "meta/",      title: "Meta" }, 
+    { url: "meta/",      title: "Meta" },
     { url: "https://github.com/ppanchal-ucsd/portfolio", title: "GitHub" },
   ];
 
@@ -104,5 +104,6 @@ export async function fetchGitHubData(username) {
   if (!username) throw new Error('fetchGitHubData: missing username');
   return await fetchJSON(`https://api.github.com/users/${encodeURIComponent(username)}`);
 }
+
 
 

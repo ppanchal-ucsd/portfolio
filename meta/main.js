@@ -1,7 +1,9 @@
 console.log('main.js loaded');
 
-let xScale, yScale;    
-let commitsRef = [];    
+let xScale, yScale;
+let commitsRef = [];
+
+const REPO = document.querySelector('meta[name="repo"]')?.content || 'ppanchal-ucsd/portfolio';
 
 async function loadData() {
   const data = await d3.csv('loc.csv', row => ({
@@ -19,14 +21,21 @@ function computeCommits(data) {
   return grouped.map(([id, lines]) => {
     const first = lines[0];
     const dt = new Date(first.datetime);
-    return {
+
+    const commit = {
       id,
+      url: `https://github.com/${REPO}/commit/${id}`,
       author: first.author,
       datetime: dt,
       hourFrac: dt.getHours() + dt.getMinutes() / 60,
-      totalLines: lines.length,
-      lines
+      totalLines: lines.length
     };
+
+    Object.defineProperty(commit, 'lines', {
+      value: lines, enumerable: false, writable: false, configurable: false
+    });
+
+    return commit;
   });
 }
 
@@ -38,12 +47,16 @@ function renderCommitInfo(data, commits) {
 
   dl.append('dt').html('Total <abbr title="Lines of code">LOC</abbr>');
   dl.append('dd').text(data.length);
+
   dl.append('dt').text('Total commits');
   dl.append('dd').text(commits.length);
+
   dl.append('dt').text('Files');
   dl.append('dd').text(files.size);
+
   dl.append('dt').text('Avg file length (lines)');
   dl.append('dd').text(Math.round(d3.mean(perFileLengths) ?? 0));
+
   dl.append('dt').text('Max file length (lines)');
   dl.append('dd').text(d3.max(perFileLengths) ?? 0);
 }
@@ -79,8 +92,14 @@ function renderScatterPlot(commits) {
   g.append('g').attr('transform', `translate(0,${innerH})`).call(d3.axisBottom(x));
   g.append('g').call(d3.axisLeft(y).ticks(13).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
 
-  g.append('text').attr('x', innerW/2).attr('y', innerH + 30).attr('text-anchor', 'middle').attr('font-size', 12).text('Date');
-  g.append('text').attr('x', -innerH/2).attr('y', -40).attr('transform', 'rotate(-90)').attr('text-anchor', 'middle').attr('font-size', 12).text('Hour of day');
+  g.append('text')
+    .attr('x', innerW/2).attr('y', innerH + 30)
+    .attr('text-anchor', 'middle').attr('font-size', 12).text('Date');
+
+  g.append('text')
+    .attr('x', -innerH/2).attr('y', -40)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle').attr('font-size', 12).text('Hour of day');
 
   const tooltip = document.getElementById('commit-tooltip');
   const formatDate = d3.timeFormat('%a, %b %d %Y %I:%M %p');
@@ -88,7 +107,8 @@ function renderScatterPlot(commits) {
   function showTooltip(event, d) {
     tooltip.hidden = false;
     tooltip.innerHTML = `
-      <dt>Commit</dt><dd>${d.id}</dd>
+      <dt>Commit</dt>
+      <dd><a href="${d.url}" target="_blank" rel="noopener noreferrer">${d.id}</a></dd>
       <dt>Author</dt><dd>${d.author ?? ''}</dd>
       <dt>Date</dt><dd>${formatDate(d.datetime)}</dd>
       <dt>Lines edited</dt><dd>${d.totalLines}</dd>
@@ -99,6 +119,7 @@ function renderScatterPlot(commits) {
   function hideTooltip() { tooltip.hidden = true; }
 
   const sorted = d3.sort(commits, d => -d.totalLines);
+
   g.append('g').attr('class', 'dots')
     .selectAll('circle')
     .data(sorted)
@@ -166,4 +187,5 @@ async function init() {
   console.log('Loaded', { rows: data.length, commits: commits.length });
 }
 init();
+
 
