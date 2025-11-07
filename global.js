@@ -6,12 +6,12 @@ export async function fetchJSON(url) {
   return await res.json();
 }
 
-
 console.log("IT'S ALIVE!");
 
 function $$(selector, context = document) {
   return Array.from(context.querySelectorAll(selector));
 }
+
 export function renderProjects(projects, containerEl, headingLevel = 'h2') {
   if (!containerEl) return;
   containerEl.innerHTML = '';
@@ -27,59 +27,46 @@ export function renderProjects(projects, containerEl, headingLevel = 'h2') {
   }
 }
 
-
-// {
-//   const navLinks = $$("nav a");
-//   const currentLink = navLinks.find(
-//     (a) => a.host === location.host && a.pathname === location.pathname
-//   );
-//   currentLink?.classList.add("current");
-// }
-
-// STEP 3 — automatic navigation with correct paths & current highlighting
 {
   const pages = [
-      { url: "",          title: "Home" },
-      { url: "projects/", title: "Projects" },
-      { url: "resume/",   title: "Resume" },
-      { url: "contact/",  title: "Contact" },
-    // add all your other internal pages here
+    { url: "",           title: "Home" },
+    { url: "projects/",  title: "Projects" },
+    { url: "resume/",    title: "Resume" },
+    { url: "contact/",   title: "Contact" },
+    { url: "meta/",      title: "Meta" }, 
     { url: "https://github.com/ppanchal-ucsd/portfolio", title: "GitHub" },
   ];
 
-  // Change '/<repo-name>/' to your GitHub Pages repo name (if deploying)
-  const BASE_PATH =
-    location.hostname === "localhost" || location.hostname === "127.0.0.1"
-      ? "/"
-      : "/portfolio/";
+  const baseMeta = document.querySelector('meta[name="site-base"]');
+  const BASE_PATH = baseMeta?.content ??
+    (location.hostname === "localhost" || location.hostname === "127.0.0.1" ? "/" : "/portfolio/");
 
   const nav = document.createElement("nav");
-  document.body.prepend(nav);
+  const mount = document.querySelector("header") || document.body;
+  mount.prepend(nav);
+
+  const normalizePath = (p) =>
+    (p || "/").replace(/index\.html$/, "").replace(/\/+$/, "/") || "/";
+  const here = normalizePath(location.pathname);
 
   for (const p of pages) {
-    let url = p.url;
-    // Prefix internal links with BASE_PATH; leave absolute URLs alone
-    url = !url.startsWith("http") ? BASE_PATH + url : url;
-
+    let href = p.url;
+    if (!/^https?:\/\//i.test(href)) {
+      href = BASE_PATH.replace(/\/$/, "/") + href;
+    }
     const a = document.createElement("a");
-    a.href = url;
+    a.href = href;
     a.textContent = p.title;
 
-    // highlight the current page
-    a.classList.toggle(
-      "current",
-      a.host === location.host && a.pathname === location.pathname
-    );
+    if (a.host !== location.host) a.target = "_blank";
 
-    // open external links in a new tab
-    a.toggleAttribute("target", a.host !== location.host);
-    if (a.target) a.target = "_blank";
+    const targetPath = normalizePath(new URL(a.href).pathname);
+    if (targetPath === here) a.classList.add("current");
 
     nav.append(a);
   }
 }
 
-// Insert a 3-state Theme switch (Automatic / Light / Dark)
 document.body.insertAdjacentHTML(
   "afterbegin",
   `
@@ -102,12 +89,10 @@ document.body.insertAdjacentHTML(
     if (select) select.value = value;
   }
 
-  // On load: restore saved preference if present
   if ("colorScheme" in localStorage) {
     setColorScheme(localStorage.colorScheme);
   }
 
-  // React to user changes and save
   select?.addEventListener("input", (event) => {
     const value = event.target.value;
     setColorScheme(value);
@@ -117,7 +102,7 @@ document.body.insertAdjacentHTML(
 
 export async function fetchGitHubData(username) {
   if (!username) throw new Error('fetchGitHubData: missing username');
-  // Reuse fetchJSON so errors surface clearly
   return await fetchJSON(`https://api.github.com/users/${encodeURIComponent(username)}`);
 }
+
 
