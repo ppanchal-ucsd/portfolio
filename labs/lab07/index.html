@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lab 7 — Bikewatching</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="map.js" type="module"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>Lab 7 — Bikewatching</h1>
+      <label class="time-filter">
+        <span>Filter by time:</span>
+        <input id="time-slider" type="range" min="-1" max="1440" value="-1" step="60" />
+        <time id="selected-time"></time>
+        <em id="any-time">(any time)</em>
+      </label>
+    </header>
+    <div id="map">
+      <svg></svg>
+      <div class="legend">
+        <div class="row"><span class="swatch swatch-out"></span><span>More departures</span></div>
+        <div class="row"><span class="swatch swatch-in"></span><span>More arrivals</span></div>
+      </div>
+    </div>
+  </body>
+</html>
