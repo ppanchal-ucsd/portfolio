@@ -23,6 +23,38 @@
       box-shadow: 0 4px 10px rgba(0,0,0,.1);
       padding: 8px 10px; border-radius: 8px; font-size: 12px;
     }
+
+    #scrolly {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+    article {
+      width: 35%;
+      line-height: 1.5;
+      position: relative;
+    }
+    .step {
+      margin: 3rem 0;
+      padding: 1rem;
+      border-left: 4px solid #ddd;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    .step.active {
+      border-color: steelblue;
+      background-color: #f0f8ff;
+    }
+    figure {
+      width: 60%;
+      position: sticky;
+      top: 2rem;
+      height: 80vh;
+    }
+    #scroll-chart {
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
@@ -44,13 +76,34 @@
       <dl id="language-breakdown" class="stats"></dl>
       <dl id="commit-tooltip" class="info tooltip" hidden></dl>
     </section>
+
+    <section id="scrolly">
+      <article>
+        <div class="step" data-step="1">
+          <h2>Commit Overview</h2>
+          <p>We start by examining the total number of commits across the entire codebase.</p>
+        </div>
+        <div class="step" data-step="2">
+          <h2>Language Composition</h2>
+          <p>Scroll to see how different programming languages contribute to the repository.</p>
+        </div>
+        <div class="step" data-step="3">
+          <h2>Temporal Patterns</h2>
+          <p>Next, observe commit activity over the course of a typical day.</p>
+        </div>
+        <div class="step" data-step="4">
+          <h2>Key Insight</h2>
+          <p>Finally, we highlight when the majority of commits occur.</p>
+        </div>
+      </article>
+      <figure>
+        <svg id="scroll-chart"></svg>
+      </figure>
+    </section>
   </main>
 
   <script type="module" src="../global.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="./main.js"></script>
 </body>
 </html>
-
-
