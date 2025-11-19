@@ -179,7 +179,7 @@ function brushed(event) {
 
 function buildScrolly(data, commits) {
   const svg = d3.select('#scroll-chart');
-  if (svg.empty()) return; 
+  if (svg.empty()) return;
 
   const width = svg.node().clientWidth || 800;
   const height = svg.node().clientHeight || 500;
@@ -195,7 +195,7 @@ function buildScrolly(data, commits) {
     commits,
     v => v.length,
     d => Math.floor(d.hourFrac)
-  ).map(([h, count]) => ({ hour: +h, count }));
+  ).map(([hour, count]) => ({ hour: +hour, count }));
 
   for (let h = 0; h < 24; h++) {
     if (!hourCounts.some(d => d.hour === h)) hourCounts.push({ hour: h, count: 0 });
@@ -207,41 +207,25 @@ function buildScrolly(data, commits) {
     const linesAtHour = data.filter(r => new Date(r.datetime).getHours() === h);
     const byType = d3.rollup(linesAtHour, v => v.length, r => r.type);
     let best = null;
-    for (const [k, v] of byType) {
-      if (!best || v > best[1]) best = [k, v];
-    }
+    for (const [k, v] of byType) if (!best || v > best[1]) best = [k, v];
     dominantLangByHour.set(h, best ? best[0] : 'Other');
   }
 
   const allTypes = Array.from(new Set(data.map(d => d.type))).filter(Boolean);
   const color = d3.scaleOrdinal().domain(allTypes.concat('Other')).range(d3.schemeTableau10);
 
-  const x = d3.scaleBand()
-    .domain(hourCounts.map(d => d.hour))
-    .range([0, innerW])
-    .padding(0.1);
-
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(hourCounts, d => d.count) || 1])
-    .nice()
-    .range([innerH, 0]);
+  const x = d3.scaleBand().domain(hourCounts.map(d => d.hour)).range([0, innerW]).padding(0.1);
+  const y = d3.scaleLinear().domain([0, d3.max(hourCounts, d => d.count) || 1]).nice().range([innerH, 0]);
 
   g.append('g')
     .attr('transform', `translate(0,${innerH})`)
     .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,23]).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
-
   g.append('g').call(d3.axisLeft(y).ticks(5));
 
-  g.append('text')
-    .attr('x', innerW / 2).attr('y', innerH + 32)
-    .attr('text-anchor', 'middle').attr('font-size', 12)
-    .text('Hour of day');
-
-  g.append('text')
-    .attr('x', -innerH / 2).attr('y', -36)
-    .attr('transform', 'rotate(-90)')
-    .attr('text-anchor', 'middle').attr('font-size', 12)
-    .text('Commits');
+  g.append('text').attr('x', innerW / 2).attr('y', innerH + 32)
+    .attr('text-anchor', 'middle').attr('font-size', 12).text('Hour of day');
+  g.append('text').attr('x', -innerH / 2).attr('y', -36).attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle').attr('font-size', 12).text('Commits');
 
   const bars = g.append('g').attr('class', 'bars')
     .selectAll('rect')
@@ -285,8 +269,10 @@ function buildScrolly(data, commits) {
     .attr('font-weight', 600)
     .text(`Peak: ${String(maxHourDatum.hour).padStart(2,'0')}:00 (${maxHourDatum.count})`);
 
-  const legend = svg.append('g').attr('class', 'legend').attr('transform', `translate(${width - 170},${margin.top})`).attr('opacity', 0);
-  const legendItems = allTypes.slice(0, 6); 
+  const legend = svg.append('g').attr('class', 'legend')
+    .attr('transform', `translate(${width - 170},${margin.top})`)
+    .attr('opacity', 0);
+  const legendItems = allTypes.slice(0, 6);
   legendItems.forEach((t, i) => {
     const row = legend.append('g').attr('transform', `translate(0, ${i * 18})`);
     row.append('rect').attr('width', 12).attr('height', 12).attr('fill', color(t));
@@ -346,9 +332,9 @@ function buildScrolly(data, commits) {
   }, { root: null, threshold: 0.6 });
 
   steps.forEach(step => observer.observe(step));
-
   setActiveStep(0);
 }
+
 async function init() {
   const data = await loadData();
   const commits = computeCommits(data);
@@ -361,6 +347,7 @@ async function init() {
   console.log('Loaded', { rows: data.length, commits: commits.length });
 }
 init();
+
 
 
 
