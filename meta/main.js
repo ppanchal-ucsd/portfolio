@@ -1,3 +1,4 @@
+
 console.log('main.js loaded');
 
 let xScale, yScale;
@@ -176,6 +177,178 @@ function brushed(event) {
   renderSelectionCount(selection);
 }
 
+function buildScrolly(data, commits) {
+  const svg = d3.select('#scroll-chart');
+  if (svg.empty()) return; 
+
+  const width = svg.node().clientWidth || 800;
+  const height = svg.node().clientHeight || 500;
+  svg.attr('viewBox', [0, 0, width, height]);
+
+  const margin = { top: 30, right: 24, bottom: 40, left: 48 };
+  const innerW = width - margin.left - margin.right;
+  const innerH = height - margin.top - margin.bottom;
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const hourCounts = d3.rollups(
+    commits,
+    v => v.length,
+    d => Math.floor(d.hourFrac)
+  ).map(([h, count]) => ({ hour: +h, count }));
+
+  for (let h = 0; h < 24; h++) {
+    if (!hourCounts.some(d => d.hour === h)) hourCounts.push({ hour: h, count: 0 });
+  }
+  hourCounts.sort((a, b) => d3.ascending(a.hour, b.hour));
+
+  const dominantLangByHour = new Map();
+  for (let h = 0; h < 24; h++) {
+    const linesAtHour = data.filter(r => new Date(r.datetime).getHours() === h);
+    const byType = d3.rollup(linesAtHour, v => v.length, r => r.type);
+    let best = null;
+    for (const [k, v] of byType) {
+      if (!best || v > best[1]) best = [k, v];
+    }
+    dominantLangByHour.set(h, best ? best[0] : 'Other');
+  }
+
+  const allTypes = Array.from(new Set(data.map(d => d.type))).filter(Boolean);
+  const color = d3.scaleOrdinal().domain(allTypes.concat('Other')).range(d3.schemeTableau10);
+
+  const x = d3.scaleBand()
+    .domain(hourCounts.map(d => d.hour))
+    .range([0, innerW])
+    .padding(0.1);
+
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(hourCounts, d => d.count) || 1])
+    .nice()
+    .range([innerH, 0]);
+
+  g.append('g')
+    .attr('transform', `translate(0,${innerH})`)
+    .call(d3.axisBottom(x).tickValues([0,4,8,12,16,20,23]).tickFormat(d => `${String(d).padStart(2,'0')}:00`));
+
+  g.append('g').call(d3.axisLeft(y).ticks(5));
+
+  g.append('text')
+    .attr('x', innerW / 2).attr('y', innerH + 32)
+    .attr('text-anchor', 'middle').attr('font-size', 12)
+    .text('Hour of day');
+
+  g.append('text')
+    .attr('x', -innerH / 2).attr('y', -36)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle').attr('font-size', 12)
+    .text('Commits');
+
+  const bars = g.append('g').attr('class', 'bars')
+    .selectAll('rect')
+    .data(hourCounts, d => d.hour)
+    .join('rect')
+    .attr('x', d => x(d.hour))
+    .attr('width', x.bandwidth())
+    .attr('y', innerH)
+    .attr('height', 0)
+    .attr('fill', '#cfcfcf');
+
+  bars.transition()
+    .delay((d, i) => i * 10)
+    .duration(600)
+    .attr('y', d => y(d.count))
+    .attr('height', d => innerH - y(d.count));
+
+  const line = d3.line()
+    .x(d => x(d.hour) + x.bandwidth() / 2)
+    .y(d => y(d.count))
+    .curve(d3.curveMonotoneX);
+
+  const linePath = g.append('path')
+    .attr('class', 'trend')
+    .attr('d', line(hourCounts))
+    .attr('fill', 'none')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 2)
+    .attr('opacity', 0);
+
+  const maxHourDatum = hourCounts.reduce((a, b) => (a.count >= b.count ? a : b), hourCounts[0]);
+  const annotation = g.append('g').attr('class', 'annotation').attr('opacity', 0);
+  annotation.append('circle')
+    .attr('cx', x(maxHourDatum.hour) + x.bandwidth() / 2)
+    .attr('cy', y(maxHourDatum.count))
+    .attr('r', 6)
+    .attr('fill', 'goldenrod');
+  annotation.append('text')
+    .attr('x', x(maxHourDatum.hour) + x.bandwidth() / 2 + 8)
+    .attr('y', y(maxHourDatum.count) - 8)
+    .attr('font-weight', 600)
+    .text(`Peak: ${String(maxHourDatum.hour).padStart(2,'0')}:00 (${maxHourDatum.count})`);
+
+  const legend = svg.append('g').attr('class', 'legend').attr('transform', `translate(${width - 170},${margin.top})`).attr('opacity', 0);
+  const legendItems = allTypes.slice(0, 6); 
+  legendItems.forEach((t, i) => {
+    const row = legend.append('g').attr('transform', `translate(0, ${i * 18})`);
+    row.append('rect').attr('width', 12).attr('height', 12).attr('fill', color(t));
+    row.append('text').attr('x', 16).attr('y', 10).attr('font-size', 12).text(t);
+  });
+
+  const steps = d3.selectAll('.step').nodes();
+
+  function setActiveStep(activeIndex) {
+    steps.forEach((s, i) => s.classList.toggle('active', i === activeIndex));
+
+    if (activeIndex === 0) {
+      legend.transition().duration(300).attr('opacity', 0);
+      linePath.transition().duration(300).attr('opacity', 0);
+      annotation.transition().duration(300).attr('opacity', 0);
+      bars.transition().duration(600)
+        .attr('fill', '#cfcfcf')
+        .attr('opacity', 1)
+        .attr('y', d => y(d.count))
+        .attr('height', d => innerH - y(d.count));
+    }
+
+    if (activeIndex === 1) {
+      bars.transition().duration(600)
+        .attr('fill', d => color(dominantLangByHour.get(d.hour)))
+        .attr('opacity', 1);
+      legend.transition().duration(400).attr('opacity', 1);
+      linePath.transition().duration(300).attr('opacity', 0);
+      annotation.transition().duration(300).attr('opacity', 0);
+    }
+
+    if (activeIndex === 2) {
+      bars.transition().duration(600).attr('opacity', 0.5);
+      linePath.raise().transition().duration(600).attr('opacity', 1);
+      legend.transition().duration(300).attr('opacity', 0.5);
+      annotation.transition().duration(300).attr('opacity', 0);
+    }
+
+    if (activeIndex === 3) {
+      bars.transition().duration(600)
+        .attr('opacity', d => (d.hour === maxHourDatum.hour ? 1 : 0.2))
+        .attr('fill', d => (d.hour === maxHourDatum.hour ? 'tomato' : bars.attr('fill')));
+      linePath.transition().duration(300).attr('opacity', 0.3);
+      legend.transition().duration(300).attr('opacity', 0.3);
+      annotation.raise().transition().duration(500).attr('opacity', 1);
+    }
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    const mid = window.innerHeight * 0.5;
+    const visible = entries
+      .filter(e => e.isIntersecting)
+      .map(e => ({ idx: steps.indexOf(e.target), dist: Math.abs(e.target.getBoundingClientRect().top - mid) }))
+      .sort((a, b) => a.dist - b.dist);
+
+    if (visible.length) setActiveStep(visible[0].idx);
+  }, { root: null, threshold: 0.6 });
+
+  steps.forEach(step => observer.observe(step));
+
+  setActiveStep(0);
+}
 async function init() {
   const data = await loadData();
   const commits = computeCommits(data);
@@ -183,9 +356,11 @@ async function init() {
 
   renderCommitInfo(data, commits);
   renderScatterPlot(commits);
+  buildScrolly(data, commits); 
 
   console.log('Loaded', { rows: data.length, commits: commits.length });
 }
 init();
+
 
 
