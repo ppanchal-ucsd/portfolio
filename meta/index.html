@@ -24,36 +24,64 @@
       padding: 8px 10px; border-radius: 8px; font-size: 12px;
     }
 
-    #scrolly {
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
-      margin-top: 4rem;
+    #time-controls {
+      display: flex; gap: 1rem; align-items: baseline; margin: 1rem 0 2rem;
     }
-    article {
-      width: 35%;
-      line-height: 1.5;
+    #commit-time { margin-left: auto; font-variant-numeric: tabular-nums; }
+
+    #scrolly-1 {
       position: relative;
+      display: flex;
+      gap: 1rem;
+      margin-top: 3rem;
     }
+    #scrolly-1 > * { flex: 1; }
+    #scatter-story { position: relative; }
+    #scatter-plot { position: sticky; top: 0; left: 0; height: 60vh; }
+    #scatter-plot svg { width: 100%; height: 100%; }
+
     .step {
       margin: 3rem 0;
       padding: 1rem;
       border-left: 4px solid #ddd;
       transition: border-color 0.3s ease, background-color 0.3s ease;
     }
-    .step.active {
-      border-color: steelblue;
-      background-color: #f0f8ff;
+    .step.active { border-color: steelblue; background-color: #f0f8ff; }
+
+    #files {
+      display: grid;
+      grid-template-columns: 1fr 4fr;
+      gap: .25rem 1rem;
+      margin-top: 2rem;
     }
-    figure {
-      width: 60%;
-      position: sticky;
-      top: 2rem;
-      height: 80vh;
+    #files > div {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: subgrid;
+      align-items: start;
     }
-    #scroll-chart {
-      width: 100%;
-      height: 100%;
+    #files dt { grid-column: 1; }
+    #files dd {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: start;
+      align-content: start;
+      gap: 0.15em;
+      padding-top: 0.6em;
+      margin-left: 0;
+    }
+    .loc {
+      display: flex;
+      width: 0.5em;
+      aspect-ratio: 1;
+      background: var(--color, steelblue);
+      border-radius: 50%;
+    }
+
+    svg .dots circle {
+      transition: all 200ms;
+      @starting-style { r: 0; }
     }
   </style>
 </head>
@@ -65,46 +93,38 @@
 
   <main>
     <section id="summary">
+      <div id="time-controls">
+        <label>Show commits until:
+          <input id="commit-progress" type="range" min="0" max="100" value="100">
+        </label>
+        <time id="commit-time"></time>
+      </div>
+
       <h2>Summary Statistics</h2>
       <div id="stats"></div>
     </section>
 
-    <section id="scatter">
-      <h2>Commits by Time of Day</h2>
-      <div id="chart"></div>
-      <p id="selection-count">No commits selected</p>
-      <dl id="language-breakdown" class="stats"></dl>
-      <dl id="commit-tooltip" class="info tooltip" hidden></dl>
-    </section>
+    <div id="scrolly-1">
+      <div id="scatter-story"></div>
+      <div id="scatter-plot">
+        <section id="scatter">
+          <h2>Commits by Time of Day</h2>
+          <div id="chart"></div>
+          <p id="selection-count">No commits selected</p>
+          <dl id="language-breakdown" class="stats"></dl>
+          <dl id="commit-tooltip" class="info tooltip" hidden></dl>
+        </section>
+      </div>
+    </div>
 
-    <section id="scrolly">
-      <article>
-        <div class="step" data-step="1">
-          <h2>Commit Overview</h2>
-          <p>We start by examining the total number of commits across the entire codebase.</p>
-        </div>
-        <div class="step" data-step="2">
-          <h2>Language Composition</h2>
-          <p>Scroll to see how different programming languages contribute to the repository.</p>
-        </div>
-        <div class="step" data-step="3">
-          <h2>Temporal Patterns</h2>
-          <p>Next, observe commit activity over the course of a typical day.</p>
-        </div>
-        <div class="step" data-step="4">
-          <h2>Key Insight</h2>
-          <p>Finally, we highlight when the majority of commits occur.</p>
-        </div>
-      </article>
-      <figure>
-        <svg id="scroll-chart"></svg>
-      </figure>
-    </section>
+    <h2>Files (Unit Visualization)</h2>
+    <dl id="files"></dl>
   </main>
 
   <script type="module" src="../global.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-  <script src="./main.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
+
 
