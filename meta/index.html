@@ -11,78 +11,98 @@
   <link rel="stylesheet" href="../style.css"/>
 
   <style>
+    :root{
+      --muted:#6b7280;
+      --grid:#e5e7eb;
+    }
     body { font-family: sans-serif; margin: 2rem; }
     h1 { font-size: 2rem; margin-bottom: 0.5rem; }
     h2 { margin-top: 2rem; }
-    dl.stats dt { font-weight: 700; margin-top: .5rem; }
-    dl.stats dd { margin: .1rem 0 .4rem 1rem; }
-    .gridlines line { stroke-opacity: .2; }
-    circle.selected { stroke: black; stroke-width: 1; }
-    #commit-tooltip {
-      position: fixed; background: #fff; border: 1px solid #ddd;
-      box-shadow: 0 4px 10px rgba(0,0,0,.1);
-      padding: 8px 10px; border-radius: 8px; font-size: 12px;
-    }
 
     #time-controls {
-      display: flex; gap: 1rem; align-items: baseline; margin: 1rem 0 2rem;
+      display: flex; gap: 1rem; align-items: baseline; margin: .5rem 0 1rem;
     }
-    #commit-time { margin-left: auto; font-variant-numeric: tabular-nums; }
-
-    #scrolly-1 {
-      position: relative;
-      display: flex;
-      gap: 1rem;
-      margin-top: 3rem;
-    }
-    #scrolly-1 > * { flex: 1; }
-    #scatter-story { position: relative; }
-    #scatter-plot { position: sticky; top: 0; left: 0; height: 60vh; }
-    #scatter-plot svg { width: 100%; height: 100%; }
-
-    .step {
-      margin: 3rem 0;
-      padding: 1rem;
-      border-left: 4px solid #ddd;
-      transition: border-color 0.3s ease, background-color 0.3s ease;
-    }
-    .step.active { border-color: steelblue; background-color: #f0f8ff; }
+    #commit-time { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--muted); }
 
     #files {
       display: grid;
       grid-template-columns: 1fr 4fr;
       gap: .25rem 1rem;
-      margin-top: 2rem;
+      margin-top: .75rem;
+      margin-bottom: 1rem;
     }
     #files > div {
       grid-column: 1 / -1;
       display: grid;
       grid-template-columns: subgrid;
       align-items: start;
+      padding: .35rem 0;
+      border-bottom: 1px solid #f3f4f6;
     }
     #files dt { grid-column: 1; }
     #files dd {
       grid-column: 2;
       display: flex;
       flex-wrap: wrap;
-      align-items: start;
-      align-content: start;
       gap: 0.15em;
-      padding-top: 0.6em;
+      padding-top: 0.35em;
       margin-left: 0;
     }
+    #files code { font-size: 0.95rem; }
+    #files small { display:block; color:var(--muted); font-size:.8rem; }
     .loc {
-      display: flex;
       width: 0.5em;
       aspect-ratio: 1;
       background: var(--color, steelblue);
       border-radius: 50%;
     }
 
-    svg .dots circle {
-      transition: all 200ms;
-      @starting-style { r: 0; }
+    #stats dl.stats{
+      display:grid;
+      grid-template-columns: repeat(6,minmax(0,1fr));
+      gap:.25rem 2rem;
+      align-items:end;
+      margin: 1rem 0 2rem;
     }
+    dl.stats dt{
+      font-weight:600;
+      color:var(--muted);
+      text-transform:uppercase;
+      font-size:.75rem;
+      letter-spacing:.06em;
+      margin:0;
+    }
+    dl.stats dd{
+      margin:0 0 1rem 0;
+      font-size:1.4rem;
+    }
+
+    .gridlines line { stroke: var(--grid); stroke-opacity:.9; }
+    .y-axis .domain, .x-axis .domain { stroke: var(--grid); }
+    circle.selected { stroke: black; stroke-width: 1; }
+
+    #scrolly-1 {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: start;
+      margin-top: .5rem;
+    }
+    #scatter-story { position: relative; }
+    #scatter-plot { position: sticky; top: 0; height: 60vh; }
+    #scatter-plot svg { width: 100%; height: 100%; }
+
+    .step {
+      margin: 1rem 0 1.5rem;
+      padding: 1rem;
+      border-left: 4px solid #ddd;
+      background: #f9fafb;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .step.active { border-color: steelblue; background-color: #eef6ff; }
+
+    svg .dots circle { transition: all 200ms; }
   </style>
 </head>
 <body>
@@ -92,15 +112,18 @@
   </header>
 
   <main>
-    <section id="summary">
-      <div id="time-controls">
-        <label>Show commits until:
-          <input id="commit-progress" type="range" min="0" max="100" value="100">
-        </label>
-        <time id="commit-time"></time>
-      </div>
+    <div id="time-controls">
+      <label>Show commits until:
+        <input id="commit-progress" type="range" min="0" max="100" value="100">
+      </label>
+      <time id="commit-time"></time>
+    </div>
 
-      <h2>Summary Statistics</h2>
+    <h2 class="sr-only" style="position:absolute;left:-9999px;">Files (Unit Visualization)</h2>
+    <dl id="files"></dl>
+
+    <section id="summary">
+      <h2 class="sr-only" style="position:absolute;left:-9999px;">Summary Statistics</h2>
       <div id="stats"></div>
     </section>
 
@@ -116,9 +139,6 @@
         </section>
       </div>
     </div>
-
-    <h2>Files (Unit Visualization)</h2>
-    <dl id="files"></dl>
   </main>
 
   <script type="module" src="../global.js"></script>
@@ -127,6 +147,7 @@
   <script src="./main.js"></script>
 </body>
 </html>
+
 
 
 
