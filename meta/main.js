@@ -1,25 +1,28 @@
-import scrollama from 'https://cdn.jsdelivr.net/npm/[email protected]/+esm';
-
 console.log('main.js loaded');
 
 let xScale, yScale;
 let commitsRef = [];
 let timeScale;
-let commitProgress = 100;           
-let commitMaxTime;                  
-let filteredCommits = [];           
+let commitProgress = 100;   
+let commitMaxTime;          
+let filteredCommits = [];   
 
 const REPO = document.querySelector('meta[name="repo"]')?.content || 'ppanchal-ucsd/portfolio';
 
 async function loadData() {
-  const data = await d3.csv('loc.csv', row => ({
-    ...row,
-    line: +row.line,
-    depth: +row.depth,
-    length: +row.length,
-    datetime: new Date(row.datetime),
-  }));
-  return data;
+  try {
+    const data = await d3.csv('loc.csv', row => ({
+      ...row,
+      line: +row.line,
+      depth: +row.depth,
+      length: +row.length,
+      datetime: new Date(row.datetime)
+    }));
+    return data;
+  } catch (err) {
+    console.error('Failed to load loc.csv. Are you on a local server and is the path correct?', err);
+    return [];
+  }
 }
 
 function computeCommits(data) {
@@ -38,8 +41,9 @@ function computeCommits(data) {
     Object.defineProperty(commit, 'lines', { value: lines, enumerable: false });
     return commit;
   });
-  return commits.sort((a,b)=>a.datetime - b.datetime);
+  return commits.sort((a, b) => a.datetime - b.datetime);
 }
+
 
 function renderCommitInfo(data, commits) {
   const dl = d3.select('#stats').append('dl').attr('class', 'stats');
@@ -125,7 +129,7 @@ function renderScatterPlot(commits) {
 
   g.append('g').attr('class', 'dots')
     .selectAll('circle')
-    .data(sorted, d => d.id)        
+    .data(sorted, d => d.id)
     .join('circle')
       .attr('cx', d => x(d.datetime))
       .attr('cy', d => y(d.hourFrac))
@@ -142,9 +146,13 @@ function renderScatterPlot(commits) {
   svg.selectAll('.dots, .overlay ~ *').raise();
 }
 
+
 function updateScatterPlot(commits) {
   xScale = xScale.domain(d3.extent(commits, d => d.datetime));
+
   const svg = d3.select('#chart').select('svg');
+  if (svg.empty()) return;
+
   const g = svg.select('g'); 
 
   const xAxisGroup = g.select('g.x-axis');
@@ -158,7 +166,7 @@ function updateScatterPlot(commits) {
   const sorted = d3.sort(commits, d => -d.totalLines);
 
   dots.selectAll('circle')
-    .data(sorted, d => d.id)  
+    .data(sorted, d => d.id)
     .join(
       enter => enter.append('circle')
         .attr('cx', d => xScale(d.datetime))
@@ -260,7 +268,7 @@ function bindSlider(commits) {
     timeEl.textContent = commitMaxTime.toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
 
     filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);
-    if (filteredCommits.length === 0) { filteredCommits = [commits[0]]; }
+    if (filteredCommits.length === 0) filteredCommits = [commits[0]];
 
     updateScatterPlot(filteredCommits);
     updateFileDisplay(filteredCommits);
@@ -270,6 +278,7 @@ function bindSlider(commits) {
   slider.value = 100;
   onTimeSliderChange();
 }
+
 
 function buildScatterStory(commits) {
   d3.select('#scatter-story')
@@ -293,14 +302,14 @@ function buildScatterStory(commits) {
       const pct = timeScale(dt);
       const slider = document.getElementById('commit-progress');
       slider.value = pct.toFixed(0);
-
-      const event = new Event('input');
-      slider.dispatchEvent(event);
+      slider.dispatchEvent(new Event('input'));
     });
 }
 
 async function init() {
   const data = await loadData();
+  if (data.length === 0) return; 
+
   const commits = computeCommits(data);
   commitsRef = commits;
 
@@ -308,12 +317,12 @@ async function init() {
   renderScatterPlot(commits);
 
   bindSlider(commits);
-
   buildScatterStory(commits);
 
   console.log('Loaded', { rows: data.length, commits: commits.length });
 }
 init();
+
 
 
 
